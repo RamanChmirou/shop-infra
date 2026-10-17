@@ -1,0 +1,22 @@
+meta {
+  name: 04 Update quantity
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items/{{cartItemId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "quantity": 3
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.itemCount: eq 3
+}

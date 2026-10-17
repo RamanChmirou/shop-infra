@@ -10,12 +10,6 @@ get {
   auth: none
 }
 
-params:query {
-  page: 0
-  size: 3
-  sort: name,asc
-}
-
 assert {
   res.status: eq 200
 }
