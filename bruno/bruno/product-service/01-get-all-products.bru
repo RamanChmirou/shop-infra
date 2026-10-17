@@ -1,0 +1,21 @@
+meta {
+  name: 01 Get all products
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{productServiceUrl}}/products?page=0&size=3&sort=name,asc
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 0
+  size: 3
+  sort: name,asc
+}
+
+assert {
+  res.status: eq 200
+}

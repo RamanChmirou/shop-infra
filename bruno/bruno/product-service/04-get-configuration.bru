@@ -1,0 +1,15 @@
+meta {
+  name: 04 Get configuration
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{productServiceUrl}}/products/{{laptopId}}/configuration
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

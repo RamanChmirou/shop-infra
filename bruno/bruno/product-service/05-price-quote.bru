@@ -1,0 +1,24 @@
+meta {
+  name: 05 Price quote
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{productServiceUrl}}/products/{{laptopId}}/price-quote
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "selectedOptions": [
+      { "groupCode": "PROCESSOR", "valueCode": "I7" },
+      { "groupCode": "RAM", "valueCode": "RAM_32" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
