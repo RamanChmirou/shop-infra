@@ -31,5 +31,18 @@ services:
     ports:
       - "8081:8081"
 
+  cart-service:
+    build:
+      context: ../shop-cart-service
+    container_name: cart-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cart_db
+      CLIENTS_PRODUCT_SERVICE_URL: http://product-service:8081
+    ports:
+      - "8082:8082"
+
 volumes:
   postgres-data:

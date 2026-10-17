@@ -1,0 +1,32 @@
+meta {
+  name: 02 Add laptop to cart
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "productId": "{{laptopId}}",
+    "quantity": 1,
+    "selectedOptions": [
+      { "groupCode": "PROCESSOR", "valueCode": "I7" },
+      { "groupCode": "RAM", "valueCode": "RAM_32" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("cartItemId", res.body.items[0].id);
+  }
+}
