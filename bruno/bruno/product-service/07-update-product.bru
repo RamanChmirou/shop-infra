@@ -1,0 +1,25 @@
+meta {
+  name: 07 Update product
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{productServiceUrl}}/products/{{createdProductId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bluetooth Speaker Max",
+    "description": "Portable speaker, louder",
+    "type": "ELECTRONICS",
+    "price": { "amount": 249.00, "currency": "PLN", "vatRate": "VAT_23" },
+    "attributes": { "power": "30 W" }
+  }
+}
+
+assert {
+  res.status: eq 200
+}

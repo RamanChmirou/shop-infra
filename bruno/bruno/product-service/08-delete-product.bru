@@ -1,0 +1,15 @@
+meta {
+  name: 08 Delete product
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{productServiceUrl}}/products/{{createdProductId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 204
+}

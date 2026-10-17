@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: shop-postgres
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d product_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  product-service:
+    build:
+      context: ../shop-product-service
+    container_name: shop-product-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/product_db
+      SPRING_DATASOURCE_USERNAME: shop
+      SPRING_DATASOURCE_PASSWORD: shop
+    ports:
+      - "8081:8081"
+
+volumes:
+  postgres-data:
