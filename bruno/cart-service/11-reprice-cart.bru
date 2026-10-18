@@ -1,0 +1,15 @@
+meta {
+  name: 11 Reprice cart
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{cartServiceUrl}}/carts/{{userId}}/reprice
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

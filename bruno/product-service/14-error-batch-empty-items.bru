@@ -1,0 +1,21 @@
+meta {
+  name: 14 Error batch empty items
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{productServiceUrl}}/products/price-quotes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "items": []
+  }
+}
+
+assert {
+  res.status: eq 400
+}
