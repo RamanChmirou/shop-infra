@@ -1,0 +1,35 @@
+meta {
+  name: 11 Checkout (TRANSFER)
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customer": {
+      "firstName": "Jan",
+      "lastName": "Kowalski",
+      "email": "jan@example.com",
+      "phone": "+48123456789"
+    },
+    "deliveryMethod": "PICKUP",
+    "paymentMethod": "TRANSFER",
+    "expectedTotal": {{cartTotal}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("orderId", res.body.id);
+  }
+}

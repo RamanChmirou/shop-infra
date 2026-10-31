@@ -1,0 +1,19 @@
+meta {
+  name: 10 Error - unsupported sort field
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{orderServiceUrl}}/orders/{{userId}}
+  body: none
+  auth: none
+}
+
+params:query {
+  sortBy: password
+}
+
+assert {
+  res.status: eq 400
+}

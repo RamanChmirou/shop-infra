@@ -1,0 +1,22 @@
+meta {
+  name: 02 Get orders (page, sorted)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{orderServiceUrl}}/orders/{{userId}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 0
+  size: 10
+  sortBy: createdAt
+  direction: DESC
+}
+
+assert {
+  res.status: eq 200
+}
