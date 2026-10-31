@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{orderServiceUrl}}/orders/{{userId}}
+  url: {{orderServiceUrl}}/orders/{{userId}}?page=0&size=10&sortBy=createdAt&direction=DESC
   body: none
   auth: none
 }
