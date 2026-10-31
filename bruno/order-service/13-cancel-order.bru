@@ -1,0 +1,16 @@
+meta {
+  name: 13 Cancel unpaid order
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}/{{orderId}}/cancel
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq CANCELLED
+}
