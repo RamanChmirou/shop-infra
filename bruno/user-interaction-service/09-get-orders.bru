@@ -1,0 +1,20 @@
+meta {
+  name: 09 Get Orders
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{interactionServiceUrl}}/api/orders
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.content: isDefined
+}

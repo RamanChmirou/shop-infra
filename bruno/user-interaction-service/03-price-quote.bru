@@ -1,0 +1,25 @@
+meta {
+  name: 03 Price Quote
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{interactionServiceUrl}}/api/products/{{laptopId}}/price-quote
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "selectedOptions": [
+      { "groupCode": "PROCESSOR", "valueCode": "I7" },
+      { "groupCode": "RAM", "valueCode": "RAM_32" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.unitPrice.amount: isDefined
+}

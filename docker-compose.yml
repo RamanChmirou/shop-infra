@@ -186,6 +186,41 @@ services:
       retries: 12
       start_period: 40s
 
+  interaction-service:
+    build:
+      context: ../shop-user-interaction-service
+    container_name: shop-user-interaction-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/user_interaction_db
+      DB_USER: shop
+      DB_PASSWORD: shop
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/shop/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER_URI: http://localhost:8180/realms/shop
+      PRODUCT_SERVICE_URL: http://product-service:8081
+      CART_SERVICE_URL: http://cart-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+      SPRING_PROFILES_ACTIVE: docker
+      LOGSTASH_DESTINATION: logstash:5000
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
 volumes:
   postgres-data:
-  es-data:
+  es-data:
