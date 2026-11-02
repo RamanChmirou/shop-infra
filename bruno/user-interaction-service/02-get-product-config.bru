@@ -1,0 +1,17 @@
+meta {
+  name: 02 Get Product Configuration
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{interactionServiceUrl}}/api/products/{{laptopId}}/configuration
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.productId: eq {{laptopId}}
+  res.body.optionGroups: isDefined
+}
