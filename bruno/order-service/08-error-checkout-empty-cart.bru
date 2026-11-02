@@ -1,0 +1,35 @@
+meta {
+  name: 08 Error - checkout with empty cart
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "customer": {
+      "firstName": "Jan",
+      "lastName": "Kowalski",
+      "email": "jan@example.com",
+      "phone": "+48123456789"
+    },
+    "deliveryMethod": "COURIER",
+    "paymentMethod": "CARD",
+    "shippingAddress": {
+      "street": "Marszalkowska 1",
+      "city": "Warszawa",
+      "postalCode": "00-001",
+      "country": "PL"
+    },
+    "expectedTotal": 1.00
+  }
+}
+
+assert {
+  res.status: eq 400
+}

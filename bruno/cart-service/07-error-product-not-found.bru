@@ -1,0 +1,23 @@
+meta {
+  name: 07 Error - product not found
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "productId": "99999999-0000-0000-0000-000000000009",
+    "quantity": 1,
+    "selectedOptions": []
+  }
+}
+
+assert {
+  res.status: eq 404
+}

@@ -1,0 +1,15 @@
+meta {
+  name: 05 Error - pay again
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}/{{orderId}}/pay
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 409
+}

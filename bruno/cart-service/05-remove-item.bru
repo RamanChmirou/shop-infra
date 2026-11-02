@@ -1,0 +1,15 @@
+meta {
+  name: 05 Remove item
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items/{{cartItemId}}
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 204
+}

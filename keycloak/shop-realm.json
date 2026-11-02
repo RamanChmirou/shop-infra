@@ -1,0 +1,55 @@
+{
+  "realm": "shop",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "accessTokenLifespan": 3600,
+  "roles": {
+    "realm": [
+      { "name": "USER", "description": "Customer of the shop" },
+      { "name": "ADMIN", "description": "Staff of the shop" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "shop-web",
+      "name": "Shop web client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "id": "aaaaaaaa-0000-0000-0000-000000000001",
+      "username": "jan",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Jan",
+      "lastName": "Kowalski",
+      "email": "jan@example.com",
+      "credentials": [
+        { "type": "password", "value": "jan123", "temporary": false }
+      ],
+      "realmRoles": ["USER"]
+    },
+    {
+      "id": "bbbbbbbb-0000-0000-0000-000000000001",
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Anna",
+      "lastName": "Admin",
+      "email": "admin@example.com",
+      "credentials": [
+        { "type": "password", "value": "admin123", "temporary": false }
+      ],
+      "realmRoles": ["USER", "ADMIN"]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+meta {
+  name: 10 Error - item not found
+  type: http
+  seq: 10
+}
+
+patch {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items/99999999-0000-0000-0000-000000000009
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "quantity": 2
+  }
+}
+
+assert {
+  res.status: eq 404
+}

@@ -1,0 +1,21 @@
+meta {
+  name: 05 Get Cart
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{interactionServiceUrl}}/api/cart
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isDefined
+  res.body.totalAmount: isDefined
+}

@@ -1,0 +1,15 @@
+meta {
+  name: 07 Error - cancel shipped order
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}/{{orderId}}/cancel
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 409
+}

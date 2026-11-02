@@ -1,0 +1,220 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: shop-postgres
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d product_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: shop-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  akhq:
+    image: tchiotludo/akhq:0.25.1
+    container_name: shop-akhq
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            shop:
+              properties:
+                bootstrap.servers: "kafka:9092"
+    ports:
+      - "8090:8080"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    container_name: shop-elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.15.3
+    container_name: shop-logstash
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.15.3
+    container_name: shop-kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: shop-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./keycloak/shop-realm.json:/opt/keycloak/data/import/shop-realm.json:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"status\": \"UP\"' <&3" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  product-service:
+    build:
+      context: ../shop-product-service
+    container_name: shop-product-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/product_db
+      SPRING_DATASOURCE_USERNAME: shop
+      SPRING_DATASOURCE_PASSWORD: shop
+      SPRING_PROFILES_ACTIVE: docker
+      LOGSTASH_DESTINATION: logstash:5000
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fs http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  cart-service:
+    build:
+      context: ../shop-cart-service
+    container_name: cart-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cart_db
+      CLIENTS_PRODUCT_SERVICE_URL: http://product-service:8081
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_PROFILES_ACTIVE: docker
+      LOGSTASH_DESTINATION: logstash:5000
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fs http://localhost:8082/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  order-service:
+    build:
+      context: ../shop-order-service
+    container_name: shop-order-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/order_db
+      DB_USER: shop
+      DB_PASSWORD: shop
+      CART_SERVICE_URL: http://cart-service:8082
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_PROFILES_ACTIVE: docker
+      LOGSTASH_DESTINATION: logstash:5000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  interaction-service:
+    build:
+      context: ../shop-user-interaction-service
+    container_name: shop-user-interaction-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/user_interaction_db
+      DB_USER: shop
+      DB_PASSWORD: shop
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/shop/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER_URI: http://localhost:8180/realms/shop
+      PRODUCT_SERVICE_URL: http://product-service:8081
+      CART_SERVICE_URL: http://cart-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+      SPRING_PROFILES_ACTIVE: docker
+      LOGSTASH_DESTINATION: logstash:5000
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+volumes:
+  postgres-data:
+  es-data:

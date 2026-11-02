@@ -1,0 +1,16 @@
+meta {
+  name: 01 Get Products
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{interactionServiceUrl}}/api/products
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.content: isDefined
+}

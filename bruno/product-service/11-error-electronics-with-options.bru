@@ -1,0 +1,32 @@
+meta {
+  name: 11 Error - electronics with option groups
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{productServiceUrl}}/products
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Broken Charger",
+    "type": "ELECTRONICS",
+    "price": { "amount": 99.00, "currency": "PLN", "vatRate": "VAT_23" },
+    "optionGroups": [
+      {
+        "code": "COLOR",
+        "name": "Color",
+        "selectionType": "SINGLE",
+        "required": true,
+        "values": [ { "code": "BLACK", "label": "Black", "priceDelta": 0 } ]
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
