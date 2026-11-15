@@ -1,0 +1,37 @@
+meta {
+  name: 12 Batch price quotes
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{productServiceUrl}}/products/price-quotes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "productId": "{{laptopId}}",
+        "selectedOptions": [
+          { "groupCode": "PROCESSOR", "valueCode": "I7" },
+          { "groupCode": "RAM", "valueCode": "RAM_32" }
+        ]
+      },
+      {
+        "productId": "{{laptopId}}",
+        "selectedOptions": [
+          { "groupCode": "PROCESSOR", "valueCode": "I7" },
+          { "groupCode": "RAM", "valueCode": "RAM_16" }
+        ]
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.quotes.length: eq 2
+}

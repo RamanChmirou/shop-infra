@@ -1,0 +1,33 @@
+meta {
+  name: 13 Error batch product not found
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{productServiceUrl}}/products/price-quotes
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "items": [
+      {
+        "productId": "{{laptopId}}",
+        "selectedOptions": [
+          { "groupCode": "PROCESSOR", "valueCode": "I7" },
+          { "groupCode": "RAM", "valueCode": "RAM_32" }
+        ]
+      },
+      {
+        "productId": "99999999-9999-9999-9999-999999999999",
+        "selectedOptions": []
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 404
+}

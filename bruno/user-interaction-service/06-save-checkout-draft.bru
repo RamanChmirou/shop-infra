@@ -1,0 +1,39 @@
+meta {
+  name: 06 Save Checkout Draft
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{interactionServiceUrl}}/api/checkout/draft
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "firstName": "Jan",
+    "lastName": "Kowalski",
+    "email": "jan@example.com",
+    "phone": "+48123456789",
+    "shippingAddress": {
+      "street": "Marszalkowska 1",
+      "city": "Warszawa",
+      "postalCode": "00-001",
+      "country": "PL"
+    },
+    "deliveryMethod": "COURIER",
+    "paymentMethod": "CARD",
+    "note": "Please leave at door"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.firstName: eq Jan
+  res.body.deliveryMethod: eq COURIER
+}

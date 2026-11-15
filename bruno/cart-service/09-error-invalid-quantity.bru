@@ -1,0 +1,23 @@
+meta {
+  name: 09 Error - invalid quantity
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "productId": "{{laptopId}}",
+    "quantity": 0,
+    "selectedOptions": []
+  }
+}
+
+assert {
+  res.status: eq 400
+}

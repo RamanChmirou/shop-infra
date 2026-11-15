@@ -1,0 +1,23 @@
+meta {
+  name: 07 Get Checkout Summary
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{interactionServiceUrl}}/api/checkout/summary
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.cart: isDefined
+  res.body.checkoutData: isDefined
+  res.body.deliveryCost: eq 15.00
+  res.body.readyToSubmit: eq true
+}

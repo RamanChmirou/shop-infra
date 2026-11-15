@@ -1,0 +1,29 @@
+meta {
+  name: 00-login-jan
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8180/realms/shop/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  grant_type: password
+  client_id: shop-web
+  username: jan
+  password: jan123
+}
+
+script:post-response {
+  bru.setEnvVar("accessToken", res.body.access_token);
+}
+
+tests {
+  test("token received", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.body.access_token).to.be.a("string");
+  });
+}

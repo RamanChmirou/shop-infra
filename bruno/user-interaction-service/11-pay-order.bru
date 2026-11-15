@@ -1,0 +1,21 @@
+meta {
+  name: 11 Pay Order
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{interactionServiceUrl}}/api/orders/{{orderId}}/pay
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq PAID
+  res.body.invoice: isDefined
+}

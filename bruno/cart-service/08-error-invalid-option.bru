@@ -1,0 +1,25 @@
+meta {
+  name: 08 Error - invalid option
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{cartServiceUrl}}/carts/{{userId}}/items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "productId": "{{laptopId}}",
+    "quantity": 1,
+    "selectedOptions": [
+      { "groupCode": "PROCESSOR", "valueCode": "NOPE" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}

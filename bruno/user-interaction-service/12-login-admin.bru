@@ -1,0 +1,29 @@
+meta {
+  name: 12 Login Admin
+  type: http
+  seq: 13
+}
+
+post {
+  url: http://localhost:8180/realms/shop/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  grant_type: password
+  client_id: shop-web
+  username: admin
+  password: admin123
+}
+
+script:post-response {
+  bru.setEnvVar("adminToken", res.body.access_token);
+}
+
+tests {
+  test("admin token received", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.body.access_token).to.be.a("string");
+  });
+}

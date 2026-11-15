@@ -1,0 +1,15 @@
+meta {
+  name: 09 Error - product not found
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{productServiceUrl}}/products/00000000-0000-0000-0000-000000000000
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+}

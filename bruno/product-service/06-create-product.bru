@@ -1,0 +1,29 @@
+meta {
+  name: 06 Create product
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{productServiceUrl}}/products
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bluetooth Speaker",
+    "description": "Portable speaker",
+    "type": "ELECTRONICS",
+    "price": { "amount": 199.00, "currency": "PLN", "vatRate": "VAT_23" },
+    "attributes": { "power": "20 W" }
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  bru.setVar("createdProductId", res.body.id);
+}

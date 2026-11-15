@@ -1,0 +1,16 @@
+meta {
+  name: 06 Ship order
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{orderId}}/ship
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq SHIPPED
+}

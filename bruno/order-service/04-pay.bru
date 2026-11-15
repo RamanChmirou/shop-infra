@@ -1,0 +1,17 @@
+meta {
+  name: 04 Pay order
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{orderServiceUrl}}/orders/{{userId}}/{{orderId}}/pay
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq PAID
+  res.body.invoice.status: eq ISSUED
+}

@@ -1,0 +1,23 @@
+meta {
+  name: 10 Error - missing required option
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{productServiceUrl}}/products/{{laptopId}}/price-quote
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "selectedOptions": [
+      { "groupCode": "PROCESSOR", "valueCode": "I7" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
